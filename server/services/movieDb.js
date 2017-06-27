@@ -1,6 +1,50 @@
 var JsonDB = require('node-json-db');
 var db = new JsonDB("myDataBase", true, false);
-
+module.exports = {
+  getMovies:function(qry){
+    var movies = db.getData('/movies');
+    if (qry.sort) {
+      movies.sort((a,b)=>a[qry.sort] > b[qry.sort])
+    }
+    delete qry.sort;
+    if (qry.desc){
+      movies.reverse();
+    }
+    delete qry.desc
+    if (qry.name){
+      movies = movies.filter(e=>e.name.toLowerCase().indexOf(qry.name.toLowerCase())>-1)
+    }
+    delete qry.name
+    for (key in qry){
+      movies = movies.filter(e=>(e[key]+'').toLowerCase().indexOf((qry[key]+'').toLowerCase())>-1)
+    }
+    return movies;
+  },
+  addMovie:function(body){
+    delete body.votes;
+    body.votes =0;
+    body.id = (db.getData('/movies[-1]').id || 0) +1;
+    db.push('/movies[]',body)
+  },
+  upvoteMovie:function(id){
+    var movies = db.getData('/movies')
+    var movie = movies.filter(e=>e.id == id)[0];
+    movie.votes++;
+    db.push('/movies', movies);
+  },
+  getMovie:function(id){
+    return db.getData('/movies').filter(e=>e.id == id)[0];
+  },
+  updateMovie:function(id, newMovie){
+    delete newMovie.votes;
+    var movies = db.getData('/movies')
+    var movie = movies.filter(e=>e.id == id)[0];
+    var votes = movie.votes;
+    Object.assign(movie, newMovie)
+    movie.votes = votes;
+    db.push('/movies', movies);
+  }
+}
 
 try {
   db.getData('/movies');
@@ -38,51 +82,3 @@ try {
 
   ]);
 }
-
-module.exports = {
-  getMovies:function(qry){
-    var movies = db.getData('/movies');
-    if (qry.sort) {
-      movies.sort((a,b)=>a[qry.sort] > b[qry.sort])
-    }
-    delete qry.sort;
-    if (qry.desc){
-      movies.reverse();
-    }
-    delete qry.desc
-    if (qry.name){
-      movies = movies.filter(e=>e.name.toLowerCase().indexOf(qry.name.toLowerCase())>-1)
-    }
-    delete qry.name
-    for (key in qry){
-      console.log(key, qry);
-      movies = movies.filter(e=>(e[key]+'').toLowerCase().indexOf((qry[key]+'').toLowerCase())>-1)
-    }
-    return movies;
-  },
-  addMovie:function(body){
-    delete body.votes;
-    body.votes =0;
-    body.id = (db.getData('/movies[-1]').id || 0) +1;
-    db.push('/movies[]',body)
-  },
-  upvoteMovie:function(id){
-    var movies = db.getData('/movies')
-    var movie = movies.filter(e=>e.id == id)[0];
-    movie.votes++;
-    db.push('/movies', movies);
-  },
-  getMovie:function(id){
-    return db.getData('/movies').filter(e=>e.id == id)[0];
-  },
-  updateMovie:function(id, newMovie){
-    delete newMovie.votes;
-    var movies = db.getData('/movies')
-    var movie = movies.filter(e=>e.id == id)[0];
-    var votes = movie.votes;
-    Object.assign(movie, newMovie)
-    movie.votes = votes;
-    db.push('/movies', movies);
-  }
-}
-console.log(module.exports.getMovies({'genre':'action'}))
