@@ -1,0 +1,24 @@
+{
+  "name": "day-1",
+  "version": "1.0.0",
+  "description": "First day with Node with Brak",
+  "main": "server/server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mitchyboy3/node-day-1.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mitchyboy3/node-day-1/issues"
+  },
+  "homepage": "https://github.com/mitchyboy3/node-day-1#readme",
+  "dependencies": {
+    "body-parser": "^1.17.2",
+    "express": "^4.15.3",
+    "node-json-db": "^0.7.3"
+  }
+}
